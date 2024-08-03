@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 
 def fetch_html(url):
@@ -17,16 +18,22 @@ def parse_html(html_content):
     return titles, headings
 
 
+def save_to_csv(data, filename):
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Type", "Content"])
+        for item in data:
+            writer.writerow(item)
+
+
 if __name__ == "__main__":
     url = "https://www.bbc.com/"
     html_content = fetch_html(url)
     if html_content:
         titles, headings = parse_html(html_content)
-        print("Titles:")
-        for title in titles:
-            print(title.get_text())
-        print("\nHeadings:")
-        for heading in headings:
-            print(heading.get_text())
+        data = [("Title", title.get_text()) for title in titles]
+        data += [("Heading", heading.get_text()) for heading in headings]
+        save_to_csv(data, 'scraped_data.csv')
+        print("Data saved to scraped_data.csv")
     else:
         print("Failed to retrieve the content.")
